@@ -2,7 +2,7 @@
   <v-app id="inspire">
     <v-app-bar app color="primary" dark>
       <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title>LandLubber Compass</v-toolbar-title>
+      <v-toolbar-title class="titles">LandLubber Compass</v-toolbar-title>
     </v-app-bar>
 
     <v-navigation-drawer v-model="drawer" app>
@@ -79,3 +79,14 @@ export default {
   }
 };
 </script>
+
+<style>
+@import url("https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Sarala&display=swap");
+body {
+  font-family: "Sarala", sans-serif;
+}
+
+.titles {
+  font-family: "Amatic SC", cursive;
+}
+</style>
