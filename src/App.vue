@@ -113,6 +113,7 @@ export default {
     },
     scrapeEcosystem(raw) {
       console.log(raw);
+      //TODO - I want to go through each one and get their ecosystem name and type
     }
   },
 
