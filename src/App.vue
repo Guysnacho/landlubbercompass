@@ -58,6 +58,7 @@
 
 <script>
 import { LMap, LTileLayer, LControl } from "vue2-leaflet";
+import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
@@ -68,7 +69,7 @@ export default {
     bounds: null,
     animal: undefined,
     dialog: false,
-    searchedData: { title: "", summary: "", images: "" }
+    searchedData: { title: "", summary: "", images: "", locations: [] }
   }),
 
   methods: {
@@ -95,10 +96,23 @@ export default {
             page.images().then(Response => {
               this.searchedData.images = Response[0];
             });
+          })
+          .finally(() => {
+            axios({
+              method: "get",
+              url:
+                "https://fishbase.ropensci.org/ecosystem?fields=" +
+                this.searchedData.title.trim()
+            }).then(Response => {
+              this.scrapeEcosystem(Response.data.data);
+            });
           });
       } else {
         alert("You didn't enter a sea lubber me matey!");
       }
+    },
+    scrapeEcosystem(raw) {
+      console.log(raw);
     }
   },
 
