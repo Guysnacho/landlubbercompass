@@ -48,7 +48,28 @@
             ></v-text-field>
             <v-btn dark @click="query(animal)">Search the Seas</v-btn>
           </l-control>
-          <l-marker v-if="searchedData.locations"></l-marker>
+          <l-marker
+            v-if="searchedData.locations[0]"
+            :lat-lng="[results[0].y, results[0].x]"
+          >
+            <l-popup>
+              <v-card style="height: 75px;">
+                <v-img src="searchedData.images"></v-img>
+                <v-list>
+                  <v-list-item two-line>
+                    <v-list-item-content>
+                      <v-list-item-title>{{
+                        searchedData.title
+                      }}</v-list-item-title>
+                      <v-list-item-subtitle>{{
+                        searchedData.summary
+                      }}</v-list-item-subtitle>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-list>
+              </v-card>
+            </l-popup>
+          </l-marker>
         </l-map>
       </v-container>
     </v-main>
@@ -59,18 +80,21 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LControl, LMarker } from "vue2-leaflet";
+import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
 import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
     drawer: null,
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    provider: new OpenStreetMapProvider(),
     zoom: 3,
     center: [10, 10],
     bounds: null,
     animal: undefined,
     dialog: false,
+    results: [{ x: 0, y: 0 }],
     searchedData: { title: "", summary: "", images: "", locations: [] }
   }),
 
@@ -122,6 +146,10 @@ export default {
       });
       temp = Array.from(new Set(temp));
       this.searchedData.locations = temp;
+      this.getCoords(temp[0]);
+    },
+    async getCoords(args) {
+      this.results = await this.provider.search({ query: args });
     }
   },
 
@@ -129,13 +157,15 @@ export default {
     LMap,
     LTileLayer,
     LControl,
-    LMarker
+    LMarker,
+    LPopup
   }
 };
 </script>
 
 <style>
 @import url("https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Sarala&display=swap");
+@import url("https://unpkg.com/leaflet-geosearch@2.6.0/assets/css/leaflet.css");
 body {
   font-family: "Sarala", sans-serif;
 }
