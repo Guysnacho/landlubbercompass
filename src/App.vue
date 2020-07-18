@@ -37,6 +37,14 @@
           @update:bounds="boundsUpdated"
         >
           <l-tile-layer :url="url"></l-tile-layer>
+          <l-control position="bottomright">
+            <v-text-field
+              outlined
+              placeholder="Enter a sea-dweller"
+              class="pb-0"
+            ></v-text-field>
+            <v-btn dark>Search the Seas</v-btn>
+          </l-control>
         </l-map>
       </v-container>
     </v-main>
@@ -47,7 +55,8 @@
 </template>
 
 <script>
-import { LMap, LTileLayer } from "vue2-leaflet";
+import { LMap, LTileLayer, LControl } from "vue2-leaflet";
+import wiki from "wikijs";
 export default {
   data: () => ({
     drawer: null,
@@ -66,12 +75,19 @@ export default {
     },
     boundsUpdated(bounds) {
       this.bounds = bounds;
+    },
+    query(animal) {
+      wiki()
+        .page(animal)
+        .then(page => page.info())
+        .then(console.log());
     }
   },
 
   components: {
     LMap,
-    LTileLayer
+    LTileLayer,
+    LControl
   }
 };
 </script>
