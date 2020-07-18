@@ -29,6 +29,7 @@
       <v-container class="fill-height" fluid>
         <v-overlay v-model="dialog">{{}}</v-overlay>
         <l-map
+          ref="map"
           style="height: 100%; width: 100%"
           :zoom="zoom"
           :center="center"
@@ -47,6 +48,7 @@
             ></v-text-field>
             <v-btn dark @click="query(animal)">Search the Seas</v-btn>
           </l-control>
+          <l-marker v-if="searchedData.locations"></l-marker>
         </l-map>
       </v-container>
     </v-main>
@@ -57,7 +59,7 @@
 </template>
 
 <script>
-import { LMap, LTileLayer, LControl } from "vue2-leaflet";
+import { LMap, LTileLayer, LControl, LMarker } from "vue2-leaflet";
 import axios from "axios";
 import wiki from "wikijs";
 export default {
@@ -114,13 +116,20 @@ export default {
     scrapeEcosystem(raw) {
       console.log(raw);
       //TODO - I want to go through each one and get their ecosystem name and type
+      let temp = [];
+      raw.forEach(element => {
+        temp = [...temp, element.EcosystemName + " " + element.EcosystemType];
+      });
+      temp = Array.from(new Set(temp));
+      this.searchedData.locations = temp;
     }
   },
 
   components: {
     LMap,
     LTileLayer,
-    LControl
+    LControl,
+    LMarker
   }
 };
 </script>
