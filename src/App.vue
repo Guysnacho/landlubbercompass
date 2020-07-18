@@ -1,32 +1,31 @@
 <template>
   <v-app id="inspire">
-    <v-app-bar app color="primary" dark>
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-      <v-toolbar-title class="titles">LandLubber Compass</v-toolbar-title>
-    </v-app-bar>
-
-    <v-navigation-drawer v-model="drawer" app>
-      <v-list dense>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-fish</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Catches</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-        <v-list-item link>
-          <v-list-item-action>
-            <v-icon>mdi-anchor</v-icon>
-          </v-list-item-action>
-          <v-list-item-content>
-            <v-list-item-title>Bounties in your area</v-list-item-title>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
-    </v-navigation-drawer>
-
     <v-main>
+      <v-app-bar app color="primary" dark>
+        <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+        <v-toolbar-title class="titles">LandLubber Compass</v-toolbar-title>
+      </v-app-bar>
+
+      <v-navigation-drawer v-model="drawer" app>
+        <v-list dense>
+          <v-list-item link>
+            <v-list-item-action>
+              <v-icon>mdi-fish</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Catches</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+          <v-list-item link>
+            <v-list-item-action>
+              <v-icon>mdi-anchor</v-icon>
+            </v-list-item-action>
+            <v-list-item-content>
+              <v-list-item-title>Bounties in your area</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+      </v-navigation-drawer>
       <v-container class="fill-height" fluid>
         <v-overlay v-model="dialog">{{}}</v-overlay>
         <l-map
@@ -44,6 +43,7 @@
               placeholder="Enter a sea-dweller"
               class="pb-0"
               v-model="animal"
+              @submit="query(animal)"
             ></v-text-field>
             <v-btn dark @click="query(animal)">Search the Seas</v-btn>
           </l-control>
@@ -68,7 +68,7 @@ export default {
     bounds: null,
     animal: undefined,
     dialog: false,
-    searchedData: undefined
+    searchedData: { title: "", summary: "", images: "" }
   }),
 
   methods: {
@@ -85,13 +85,17 @@ export default {
       if (animal) {
         wiki()
           .page(animal)
-          .then(
-            page =>
-              (this.searchedData = {
-                summary: page.summary(),
-                title: page.info()
-              })
-          );
+          .then(page => {
+            page.info().then(Response => {
+              this.searchedData.title = Response.imageCaption;
+            });
+            page.summary().then(Response => {
+              this.searchedData.summary = Response;
+            });
+            page.images().then(Response => {
+              this.searchedData.images = Response[0];
+            });
+          });
       } else {
         alert("You didn't enter a sea lubber me matey!");
       }
