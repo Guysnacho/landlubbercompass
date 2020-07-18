@@ -28,6 +28,7 @@
 
     <v-main>
       <v-container class="fill-height" fluid>
+        <v-overlay v-model="dialog">{{}}</v-overlay>
         <l-map
           style="height: 100%; width: 100%"
           :zoom="zoom"
@@ -42,8 +43,9 @@
               outlined
               placeholder="Enter a sea-dweller"
               class="pb-0"
+              v-model="animal"
             ></v-text-field>
-            <v-btn dark>Search the Seas</v-btn>
+            <v-btn dark @click="query(animal)">Search the Seas</v-btn>
           </l-control>
         </l-map>
       </v-container>
@@ -63,7 +65,10 @@ export default {
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     zoom: 3,
     center: [10, 10],
-    bounds: null
+    bounds: null,
+    animal: undefined,
+    dialog: false,
+    searchedData: undefined
   }),
 
   methods: {
@@ -77,10 +82,19 @@ export default {
       this.bounds = bounds;
     },
     query(animal) {
-      wiki()
-        .page(animal)
-        .then(page => page.info())
-        .then(console.log());
+      if (animal) {
+        wiki()
+          .page(animal)
+          .then(
+            page =>
+              (this.searchedData = {
+                summary: page.summary(),
+                title: page.info()
+              })
+          );
+      } else {
+        alert("You didn't enter a sea lubber me matey!");
+      }
     }
   },
 
