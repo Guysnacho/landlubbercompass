@@ -52,22 +52,10 @@
             v-if="searchedData.locations[0]"
             :lat-lng="[results[0].y, results[0].x]"
           >
-            <l-popup>
-              <v-card style="height: 75px;">
-                <v-img src="searchedData.images"></v-img>
-                <v-list>
-                  <v-list-item two-line>
-                    <v-list-item-content>
-                      <v-list-item-title>{{
-                        searchedData.title
-                      }}</v-list-item-title>
-                      <v-list-item-subtitle>{{
-                        searchedData.summary
-                      }}</v-list-item-subtitle>
-                    </v-list-item-content>
-                  </v-list-item>
-                </v-list>
-              </v-card>
+            <l-popup style="width: 320px">
+              <v-img :src="searchedData.images" max-width="75%"></v-img>
+              {{ searchedData.title }} - Notable Location
+              {{ "\n" + searchedData.summary }}
             </l-popup>
           </l-marker>
         </l-map>
@@ -117,7 +105,10 @@ export default {
               this.searchedData.title = Response.imageCaption;
             });
             page.summary().then(Response => {
-              this.searchedData.summary = Response;
+              this.searchedData.summary = Response.substring(
+                0,
+                Response.indexOf(".")
+              );
             });
             page.images().then(Response => {
               this.searchedData.images = Response[0];
