@@ -53,7 +53,11 @@
             :lat-lng="[results[0].y, results[0].x]"
           >
             <l-popup style="width: 320px">
-              <v-img :src="searchedData.images" max-width="75%"></v-img>
+              <v-img
+                :src="searchedData.images"
+                max-width="75%"
+                class="justify-center"
+              ></v-img>
               {{ searchedData.title }} - Notable Location
               {{ "\n" + searchedData.summary }}
             </l-popup>
