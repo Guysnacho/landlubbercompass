@@ -16,14 +16,6 @@
               <v-list-item-title>Catches</v-list-item-title>
             </v-list-item-content>
           </v-list-item>
-          <v-list-item link>
-            <v-list-item-action>
-              <v-icon>mdi-anchor</v-icon>
-            </v-list-item-action>
-            <v-list-item-content>
-              <v-list-item-title>Bounties in your area</v-list-item-title>
-            </v-list-item-content>
-          </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-container class="fill-height" fluid>
@@ -78,7 +70,7 @@ import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
-    drawer: null,
+    drawer: false,
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     provider: new OpenStreetMapProvider(),
     zoom: 3,
