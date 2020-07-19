@@ -19,7 +19,6 @@
         </v-list>
       </v-navigation-drawer>
       <v-container class="fill-height" fluid>
-        <v-overlay v-model="dialog">{{}}</v-overlay>
         <l-map
           ref="map"
           style="height: 100%; width: 100%"
@@ -40,16 +39,14 @@
             <v-btn
               dark
               @click="
-                results = [{ x: 0, y: 0 }];
+                marker = false;
+                getControl();
                 query(animal);
               "
               >Search the Seas</v-btn
             >
           </l-control>
-          <l-marker
-            v-if="searchedData.locations[0]"
-            :lat-lng="[results[0].y, results[0].x]"
-          >
+          <l-marker v-if="marker" :lat-lng="[results[0], results[1]]">
             <l-popup style="width: 320px" :options="options">
               <v-carousel
                 continuous
@@ -91,7 +88,6 @@
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
-import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
@@ -101,9 +97,10 @@ export default {
     zoom: 3,
     center: [10, 10],
     bounds: null,
+    marker: false,
     animal: undefined,
-    dialog: false,
-    results: [{ x: 0, y: 0 }],
+    results: [0, 0],
+    control: [],
     searchedData: { title: "", summary: "", images: "", locations: [] },
     options: {
       autoClose: false,
@@ -126,7 +123,6 @@ export default {
         wiki()
           .page(animal)
           .then(page => {
-            console.log(page);
             this.searchedData.title = page.raw.title;
             page.summary().then(Response => {
               this.searchedData.summary = Response.substring(
@@ -149,33 +145,16 @@ export default {
                 }
               }
             });
-          })
-          .finally(() => {
-            axios({
-              method: "get",
-              url:
-                "https://fishbase.ropensci.org/ecosystem?fields=" +
-                this.searchedData.title.trim()
-            }).then(Response => {
-              let raw = Response.data.data;
-              let temp = [];
-              raw.forEach(element => {
-                temp = [
-                  ...temp,
-                  element.EcosystemName + " " + element.EcosystemType
-                ];
-              });
-              console.log(temp);
-              temp = Array.from(new Set(temp));
-              this.searchedData.locations = temp;
-
-              this.provider.search({ query: temp[0] }).then(Response => {
-                this.results = Response;
-              });
-            });
           });
       } else {
         alert("You didn't enter a sea lubber me matey!");
+      }
+    },
+    getControl() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(Response => {
+          this.control = [Response.coords.latitude, Response.coords.longitude];
+        });
       }
     }
   },
