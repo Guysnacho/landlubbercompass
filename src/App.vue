@@ -19,6 +19,7 @@
         </v-list>
       </v-navigation-drawer>
       <v-container class="fill-height" fluid>
+        <v-overlay v-model="dialog">{{}}</v-overlay>
         <l-map
           ref="map"
           style="height: 100%; width: 100%"
@@ -35,19 +36,20 @@
               placeholder="Enter a sea-dweller"
               class="pb-0"
               v-model="animal"
-              @blur="getControl()"
             ></v-text-field>
             <v-btn
               dark
               @click="
-                marker = false;
+                results = [{ x: 0, y: 0 }];
                 query(animal);
-                findAquarium();
               "
               >Search the Seas</v-btn
             >
           </l-control>
-          <l-marker v-if="marker" :lat-lng="[results[0], results[1]]">
+          <l-marker
+            v-if="searchedData.locations[0]"
+            :lat-lng="[results[0].y, results[0].x]"
+          >
             <l-popup style="width: 320px" :options="options">
               <v-carousel
                 continuous
@@ -70,11 +72,9 @@
                   </v-card-text>
                 </v-carousel-item>
                 <v-carousel-item>
-                  <v-card-title class="carouseltext text-center"
-                    >An aquarium near you!</v-card-title
+                  <v-card-text class="carouseltext text-center"
+                    >An aquarium near you!</v-card-text
                   >
-                  <v-card-text>{{ results[3] }}</v-card-text>
-                  <v-card-text>{{ results[2] }}</v-card-text>
                 </v-carousel-item>
               </v-carousel>
             </l-popup>
@@ -90,25 +90,20 @@
 
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
-import { GoogleProvider } from "leaflet-geosearch";
+import { OpenStreetMapProvider } from "leaflet-geosearch";
 import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
     drawer: false,
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    provider: new GoogleProvider({
-      params: {
-        key: "AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
-      }
-    }),
-    center: [10, 10],
+    provider: new OpenStreetMapProvider(),
     zoom: 3,
-    marker: false,
+    center: [10, 10],
+    bounds: null,
     animal: undefined,
-    city: "",
-    results: {},
-    control: [],
+    dialog: false,
+    results: [{ x: 0, y: 0 }],
     searchedData: { title: "", summary: "", images: "", locations: [] },
     options: {
       autoClose: false,
@@ -131,6 +126,7 @@ export default {
         wiki()
           .page(animal)
           .then(page => {
+            console.log(page);
             this.searchedData.title = page.raw.title;
             page.summary().then(Response => {
               this.searchedData.summary = Response.substring(
@@ -153,47 +149,34 @@ export default {
                 }
               }
             });
+          })
+          .finally(() => {
+            axios({
+              method: "get",
+              url:
+                "https://fishbase.ropensci.org/ecosystem?fields=" +
+                this.searchedData.title.trim()
+            }).then(Response => {
+              let raw = Response.data.data;
+              let temp = [];
+              raw.forEach(element => {
+                temp = [
+                  ...temp,
+                  element.EcosystemName + " " + element.EcosystemType
+                ];
+              });
+              console.log(temp);
+              temp = Array.from(new Set(temp));
+              this.searchedData.locations = temp;
+
+              this.provider.search({ query: temp[0] }).then(Response => {
+                this.results = Response;
+              });
+            });
           });
       } else {
         alert("You didn't enter a sea lubber me matey!");
       }
-    },
-    getControl() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(Response => {
-          this.control = [Response.coords.latitude, Response.coords.longitude];
-          console.log(Response);
-          axios({
-            method: "get",
-            url:
-              "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
-              this.control[0] +
-              "," +
-              this.control[1] +
-              "&key=AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
-          }).then(Response => {
-            this.city = Response.results[0].address_components[3];
-          });
-        });
-      }
-    },
-    findAquarium() {
-      console.log("Populate results");
-
-      this.provider
-        .search({ query: "Aquarium" })
-        .then(Response => {
-          console.log(Response);
-          this.results = {
-            lat: Response[0].geometry.location.lat,
-            lng: Response[0].geometry.location.lng,
-            addy: Response[0].formatted_address,
-            label: Response[0].name
-          };
-        })
-        .catch(err => {
-          console.log(err);
-        });
     }
   },
 
