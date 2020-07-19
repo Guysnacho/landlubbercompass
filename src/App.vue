@@ -91,6 +91,7 @@
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
+import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
@@ -101,7 +102,7 @@ export default {
     zoom: 3,
     marker: false,
     animal: undefined,
-    results: [0, 0, "", ""],
+    results: {},
     control: [],
     searchedData: { title: "", summary: "", images: "", locations: [] },
     options: {
@@ -160,36 +161,24 @@ export default {
       }
     },
     findAquarium() {
-      var request = require("request");
+      console.log("Populate results");
 
-      var headers = {
-        Authorization: "prj_test_pk_d4732373f0ad7780ab296db4eab4a687f00f05f4"
-      };
-
-      var options = {
+      axios({
+        method: "get",
         url:
-          "https://api.radar.io/v1/search/autocomplete?query=downtown+aquarium&near=" +
-          this.control[0] +
-          "," +
-          this.control[1] +
-          "&limit=1",
-        headers: headers
-      };
-
-      function callback(error, response, body) {
-        if (!error && response.statusCode == 200) {
-          const temp = JSON.parse(body);
-          this.marker = true;
-          this.results = [
-            temp.addresses[0].latitude,
-            temp.addresses[0].longitude,
-            temp.addresses[0].formattedAddress,
-            temp.addresses[0].addressLabel
-          ];
-        }
-      }
-
-      request(options, callback);
+          "http://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Aquarium&fields=photos,formatted_address,name,geometry&key=AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
+      })
+        .then(Response => {
+          this.results = {
+            lat: Response[0].geometry.location.lat,
+            lng: Response[0].geometry.location.lng,
+            addy: Response[0].formatted_address,
+            label: Response[0].name
+          };
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   },
 
