@@ -175,14 +175,14 @@ export default {
       };
 
       function callback(error, response, body) {
-        console.log(body.addresses);
         if (!error && response.statusCode == 200) {
+          const temp = JSON.parse(body);
           this.marker = true;
           this.results = [
-            body.addresses.latitude,
-            body.addresses.longitude,
-            body.formattedAddress,
-            body.addressLabel
+            temp.addresses[0].latitude,
+            temp.addresses[0].longitude,
+            temp.addresses[0].formattedAddress,
+            temp.addresses[0].addressLabel
           ];
         }
       }
