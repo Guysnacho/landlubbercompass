@@ -13,8 +13,8 @@ What I initially wanted was a full fish database that would show you the fish's 
 Theres no way I would've gotten this far without the work done on these repos
 
  - [Vuetify](https://github.com/vuetifyjs/vuetify)
- - Wikijs
+ - [Wikijs](https://github.com/dijs/wiki)
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTExODQ5OTIzNzYsLTExMDg1NTE1MjFdfQ
+eyJoaXN0b3J5IjpbLTE2MzQxMzQ3NTQsLTExMDg1NTE1MjFdfQ
 ==
 -->
