@@ -11,7 +11,10 @@ What I initially wanted was a full fish database that would show you the fish's 
 
 ### Shoutouts and acknowledgements
 Theres no way I would've gotten this far without the work done on these repos
+
+ - [Vuetify](https://github.com/vuetifyjs/vuetify)
  - Wikijs
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTk4NDYwMTAzMiwtMTEwODU1MTUyMV19
+eyJoaXN0b3J5IjpbLTExODQ5OTIzNzYsLTExMDg1NTE1MjFdfQ
+==
 -->
