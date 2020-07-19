@@ -17,5 +17,5 @@ Theres no way I would've gotten this far without the work done on these repos. T
  - [Vue2Leaflet](https://github.com/vue-leaflet/Vue2Leaflet)
  - [vue2-leaflet-geosearch](https://github.com/fega/vue2-leaflet-geosearch)
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNjQ2OTEwNzU5LC0xMTA4NTUxNTIxXX0=
+eyJoaXN0b3J5IjpbNjQ2OTEwNzU5XX0=
 -->
