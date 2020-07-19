@@ -50,7 +50,7 @@
                 max-width="75%"
                 class="justify-center"
               ></v-img>
-              {{ searchedData.title }} - Notable Location
+              {{ searchedData.title }} -
               {{ "\n" + searchedData.summary }}
             </l-popup>
           </l-marker>
@@ -97,9 +97,8 @@ export default {
         wiki()
           .page(animal)
           .then(page => {
-            page.info().then(Response => {
-              this.searchedData.title = Response.imageCaption;
-            });
+            console.log(page);
+            this.searchedData.title = page.raw.title;
             page.summary().then(Response => {
               this.searchedData.summary = Response.substring(
                 0,
@@ -107,7 +106,20 @@ export default {
               );
             });
             page.images().then(Response => {
-              this.searchedData.images = Response[0];
+              console.log(Response);
+              console.log(this.animal.slice(0, this.animal.indexOf(" ")));
+              for (var x = 0; x < Response.length; x++) {
+                let temp = Response[x].toUpperCase();
+                if (
+                  temp.includes(
+                    this.animal.slice(0, this.animal.indexOf(" ")).toUpperCase()
+                  )
+                ) {
+                  this.searchedData.images = Response[x];
+                  console.log(x);
+                  break;
+                }
+              }
             });
           })
           .finally(() => {
@@ -117,26 +129,26 @@ export default {
                 "https://fishbase.ropensci.org/ecosystem?fields=" +
                 this.searchedData.title.trim()
             }).then(Response => {
-              this.scrapeEcosystem(Response.data.data);
+              let raw = Response.data.data;
+              let temp = [];
+              raw.forEach(element => {
+                temp = [
+                  ...temp,
+                  element.EcosystemName + " " + element.EcosystemType
+                ];
+              });
+              temp = Array.from(new Set(temp));
+              this.searchedData.locations = temp;
+
+              this.provider.search({ query: temp[0] }).then(Response => {
+                console.log(temp[0]);
+                this.results = Response;
+              });
             });
           });
       } else {
         alert("You didn't enter a sea lubber me matey!");
       }
-    },
-    scrapeEcosystem(raw) {
-      console.log(raw);
-      //TODO - I want to go through each one and get their ecosystem name and type
-      let temp = [];
-      raw.forEach(element => {
-        temp = [...temp, element.EcosystemName + " " + element.EcosystemType];
-      });
-      temp = Array.from(new Set(temp));
-      this.searchedData.locations = temp;
-      this.getCoords(temp[0]);
-    },
-    async getCoords(args) {
-      this.results = await this.provider.search({ query: args });
     }
   },
 
