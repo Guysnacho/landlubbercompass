@@ -70,9 +70,11 @@
                   </v-card-text>
                 </v-carousel-item>
                 <v-carousel-item>
-                  <v-card-text class="carouseltext text-center"
-                    >An aquarium near you!</v-card-text
+                  <v-card-title class="carouseltext text-center"
+                    >An aquarium near you!</v-card-title
                   >
+                  <v-card-text>{{ results[3] }}</v-card-text>
+                  <v-card-text>{{ results[2] }}</v-card-text>
                 </v-carousel-item>
               </v-carousel>
             </l-popup>
