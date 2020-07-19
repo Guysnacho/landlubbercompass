@@ -90,18 +90,23 @@
 
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
-import { OpenStreetMapProvider } from "leaflet-geosearch";
+import { GoogleProvider } from "leaflet-geosearch";
 import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
     drawer: false,
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    provider: new OpenStreetMapProvider(),
+    provider: new GoogleProvider({
+      params: {
+        key: "AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
+      }
+    }),
     center: [10, 10],
     zoom: 3,
     marker: false,
     animal: undefined,
+    city: "",
     results: {},
     control: [],
     searchedData: { title: "", summary: "", images: "", locations: [] },
@@ -157,18 +162,28 @@ export default {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(Response => {
           this.control = [Response.coords.latitude, Response.coords.longitude];
+          console.log(Response);
+          axios({
+            method: "get",
+            url:
+              "https://maps.googleapis.com/maps/api/geocode/json?latlng=" +
+              this.control[0] +
+              "," +
+              this.control[1] +
+              "&key=AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
+          }).then(Response => {
+            this.city = Response.results[0].address_components[3];
+          });
         });
       }
     },
     findAquarium() {
       console.log("Populate results");
 
-      axios({
-        method: "get",
-        url:
-          "http://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=Aquarium&fields=photos,formatted_address,name,geometry&key=AIzaSyBtogduRnR_iuKtj8IFJ8fB41bhffv4Wcw"
-      })
+      this.provider
+        .search({ query: "Aquarium" })
         .then(Response => {
+          console.log(Response);
           this.results = {
             lat: Response[0].geometry.location.lat,
             lng: Response[0].geometry.location.lng,
