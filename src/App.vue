@@ -36,22 +36,47 @@
               placeholder="Enter a sea-dweller"
               class="pb-0"
               v-model="animal"
-              @submit="query(animal)"
             ></v-text-field>
-            <v-btn dark @click="query(animal)">Search the Seas</v-btn>
+            <v-btn
+              dark
+              @click="
+                results = [{ x: 0, y: 0 }];
+                query(animal);
+              "
+              >Search the Seas</v-btn
+            >
           </l-control>
           <l-marker
             v-if="searchedData.locations[0]"
             :lat-lng="[results[0].y, results[0].x]"
           >
-            <l-popup style="width: 320px">
-              <v-img
-                :src="searchedData.images"
-                max-width="75%"
-                class="justify-center"
-              ></v-img>
-              {{ searchedData.title }} -
-              {{ "\n" + searchedData.summary }}
+            <l-popup style="width: 320px" :options="options">
+              <v-carousel
+                continuous
+                hide-delimiter-background
+                show-arrows-on-hover
+                class="ml--1"
+                height="300"
+              >
+                <v-carousel-item>
+                  <v-row justify="center">
+                    <v-img
+                      :src="searchedData.images"
+                      max-width="75%"
+                      class="justify-center"
+                    ></v-img>
+                  </v-row>
+                  <v-card-text class="carouseltext text-center">
+                    {{ searchedData.title }} -
+                    {{ "\n" + searchedData.summary }}
+                  </v-card-text>
+                </v-carousel-item>
+                <v-carousel-item>
+                  <v-card-text class="carouseltext text-center"
+                    >An aquarium near you!</v-card-text
+                  >
+                </v-carousel-item>
+              </v-carousel>
             </l-popup>
           </l-marker>
         </l-map>
@@ -79,7 +104,11 @@ export default {
     animal: undefined,
     dialog: false,
     results: [{ x: 0, y: 0 }],
-    searchedData: { title: "", summary: "", images: "", locations: [] }
+    searchedData: { title: "", summary: "", images: "", locations: [] },
+    options: {
+      autoClose: false,
+      closeButton: true
+    }
   }),
 
   methods: {
@@ -106,17 +135,16 @@ export default {
               );
             });
             page.images().then(Response => {
-              console.log(Response);
-              console.log(this.animal.slice(0, this.animal.indexOf(" ")));
               for (var x = 0; x < Response.length; x++) {
                 let temp = Response[x].toUpperCase();
                 if (
                   temp.includes(
-                    this.animal.slice(0, this.animal.indexOf(" ")).toUpperCase()
+                    this.animal
+                      .slice(0, this.animal.indexOf(" ") + 1)
+                      .toUpperCase()
                   )
                 ) {
                   this.searchedData.images = Response[x];
-                  console.log(x);
                   break;
                 }
               }
@@ -137,11 +165,11 @@ export default {
                   element.EcosystemName + " " + element.EcosystemType
                 ];
               });
+              console.log(temp);
               temp = Array.from(new Set(temp));
               this.searchedData.locations = temp;
 
               this.provider.search({ query: temp[0] }).then(Response => {
-                console.log(temp[0]);
                 this.results = Response;
               });
             });
@@ -171,5 +199,10 @@ body {
 
 .titles {
   font-family: "Amatic SC", cursive;
+}
+
+.carouseltext {
+  color: black;
+  font-family: "Sarala", sans-serif;
 }
 </style>
