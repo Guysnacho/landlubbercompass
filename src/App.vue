@@ -42,6 +42,7 @@
                 marker = false;
                 getControl();
                 query(animal);
+                findAquarium();
               "
               >Search the Seas</v-btn
             >
@@ -88,6 +89,7 @@
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
+import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
@@ -156,6 +158,23 @@ export default {
           this.control = [Response.coords.latitude, Response.coords.longitude];
         });
       }
+    },
+    findAquarium() {
+      axios({
+        method: "get",
+        url: "https://api.radar.io/v1/search/autocomplete",
+        data: {
+          query: "aquarium",
+          near: this.control[0] + "," + this.control[1],
+          limit: 1
+        }
+      })
+        .then(Response => {
+          console.log(Response);
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   },
 
