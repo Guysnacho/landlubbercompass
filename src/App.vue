@@ -35,12 +35,12 @@
               placeholder="Enter a sea-dweller"
               class="pb-0"
               v-model="animal"
+              @blur="getControl()"
             ></v-text-field>
             <v-btn
               dark
               @click="
                 marker = false;
-                getControl();
                 query(animal);
                 findAquarium();
               "
@@ -89,19 +89,17 @@
 <script>
 import { LMap, LTileLayer, LControl, LMarker, LPopup } from "vue2-leaflet";
 import { OpenStreetMapProvider } from "leaflet-geosearch";
-import axios from "axios";
 import wiki from "wikijs";
 export default {
   data: () => ({
     drawer: false,
     url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     provider: new OpenStreetMapProvider(),
-    zoom: 3,
     center: [10, 10],
-    bounds: null,
+    zoom: 3,
     marker: false,
     animal: undefined,
-    results: [0, 0],
+    results: [0, 0, "", ""],
     control: [],
     searchedData: { title: "", summary: "", images: "", locations: [] },
     options: {
@@ -160,21 +158,36 @@ export default {
       }
     },
     findAquarium() {
-      axios({
-        method: "get",
-        url: "https://api.radar.io/v1/search/autocomplete",
-        data: {
-          query: "aquarium",
-          near: this.control[0] + "," + this.control[1],
-          limit: 1
+      var request = require("request");
+
+      var headers = {
+        Authorization: "prj_test_pk_d4732373f0ad7780ab296db4eab4a687f00f05f4"
+      };
+
+      var options = {
+        url:
+          "https://api.radar.io/v1/search/autocomplete?query=downtown+aquarium&near=" +
+          this.control[0] +
+          "," +
+          this.control[1] +
+          "&limit=1",
+        headers: headers
+      };
+
+      function callback(error, response, body) {
+        console.log(body.addresses);
+        if (!error && response.statusCode == 200) {
+          this.marker = true;
+          this.results = [
+            body.addresses.latitude,
+            body.addresses.longitude,
+            body.formattedAddress,
+            body.addressLabel
+          ];
         }
-      })
-        .then(Response => {
-          console.log(Response);
-        })
-        .catch(err => {
-          console.log(err);
-        });
+      }
+
+      request(options, callback);
     }
   },
 
