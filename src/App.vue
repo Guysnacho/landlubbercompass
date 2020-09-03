@@ -3,7 +3,7 @@
     <v-main>
       <v-app-bar app color="primary" dark>
         <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-        <v-toolbar-title class="titles">LandLubber Compass</v-toolbar-title>
+        <v-toolbar-title class="titles">Sam's Fish Compass</v-toolbar-title>
       </v-app-bar>
 
       <v-navigation-drawer v-model="drawer" app>
